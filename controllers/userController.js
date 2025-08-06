@@ -57,7 +57,7 @@ module.exports.register = async (req, res, next) => {
     // Get current ETH to USD conversion rate using the price service
     const ethToUsdRate = await priceService.getETHtoUSD();
     
-    // Calculate price in USD
+    // Calculate price in USD for Stripe (Stripe requires USD)
     const priceInUSD = nftPriceInETH * ethToUsdRate;
     
     // Round to 2 decimal places for cents
@@ -85,8 +85,8 @@ module.exports.register = async (req, res, next) => {
         client_secret: myPayment.client_secret,
         priceDetails: {
           tier,
-          ethPrice: nftPriceInETH,
-          usdPrice: priceInUSD.toFixed(2),
+          ethPrice: nftPriceInETH, // This is what frontend should display
+          usdPrice: priceInUSD.toFixed(2), // This is what Stripe charges
           ethToUsdRate
         }
       });
@@ -155,8 +155,8 @@ module.exports.getNFTPriceUSD = async (req, res, next) => {
     res.status(200).json({ 
       success: true,
       tier: parseInt(tier),
-      priceInETH: nftPriceInETH,
-      priceInUSD: priceInUSD.toFixed(2),
+      priceInETH: nftPriceInETH, // Primary amount for display
+      priceInUSD: priceInUSD.toFixed(2), // Secondary reference
       ethToUsdRate,
       timestamp: new Date().toISOString()
     });
